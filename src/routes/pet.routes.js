@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const authMiddleware = require("../middlewares/auth.middleware");
-const validate = require("../middlewares/validate.middleware");
+const upload = require("../middlewares/upload.middleware");
 
 const {
   createPet,
@@ -12,22 +12,10 @@ const {
   deletePet
 } = require("../controllers/pet.controller");
 
-const { createPetValidator } = require("../validators/pet.validator");
-
-router.post(
-  "/",
-  authMiddleware,
-  createPetValidator,
-  validate,
-  createPet
-);
-
+router.post("/", authMiddleware, upload.single("image"), createPet);
 router.get("/", authMiddleware, getUserPets);
-
 router.get("/:id", authMiddleware, getPetById);
-
-router.put("/:id", authMiddleware, updatePet);
-
+router.put("/:id", authMiddleware, upload.single("image"), updatePet);
 router.delete("/:id", authMiddleware, deletePet);
 
 module.exports = router;

@@ -13,6 +13,8 @@ app.use("/api/auth", authRoutes);
 app.use(errorHandler);
 app.use("/api/home", homeRoutes);
 app.use("/api/pets", petRoutes);
+app.use("/uploads", express.static("uploads"));
+
 
 app.get("/", (req, res) => {
   res.send("API running...");

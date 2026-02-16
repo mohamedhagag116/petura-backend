@@ -1,4 +1,18 @@
 const Pet = require("../models/pet.model");
+const fs = require("fs");
+const path = require("path");
+
+
+// Helper: delete image file
+const deleteImage = (filename) => {
+  if (!filename) return;
+
+  const filePath = path.join("uploads", filename);
+
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+};
 
 
 // Create
@@ -12,7 +26,8 @@ exports.createPet = async (req, res, next) => {
       type,
       breed,
       age,
-      weight
+      weight,
+      image: req.file ? req.file.filename : null
     });
 
     res.status(201).json({
@@ -26,7 +41,7 @@ exports.createPet = async (req, res, next) => {
 };
 
 
-// Get all user pets
+// Get all
 exports.getUserPets = async (req, res, next) => {
   try {
     const pets = await Pet.find({ user: req.user._id })
@@ -44,7 +59,7 @@ exports.getUserPets = async (req, res, next) => {
 };
 
 
-// Get single pet
+// Get single
 exports.getPetById = async (req, res, next) => {
   try {
     const pet = await Pet.findById(req.params.id).select("-__v");
@@ -101,6 +116,12 @@ exports.updatePet = async (req, res, next) => {
       }
     });
 
+    // If new image uploaded → delete old one
+    if (req.file) {
+      deleteImage(pet.image);
+      pet.image = req.file.filename;
+    }
+
     await pet.save();
 
     res.status(200).json({
@@ -133,6 +154,7 @@ exports.deletePet = async (req, res, next) => {
       });
     }
 
+    deleteImage(pet.image);
     await pet.deleteOne();
 
     res.status(200).json({

@@ -1,43 +1,63 @@
-const mongoose = require("mongoose");
+const express = require("express");
+const router = express.Router();
 
-const petSchema = new mongoose.Schema(
-  {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true
-    },
+const authMiddleware = require("../middlewares/auth.middleware");
+const upload = require("../middlewares/upload.middleware");
 
-    name: {
-      type: String,
-      required: true,
-      trim: true
-    },
+const {
+  createPet,
+  getUserPets,
+  getPetById,
+  updatePet,
+  deletePet
+} = require("../controllers/pet.controller");
 
-    type: {
-      type: String,
-      required: true,
-      enum: ["DOG", "CAT", "BIRD", "OTHER"]
-    },
+/*
+  All routes below are protected.
+  User must be authenticated.
+*/
 
-    breed: {
-      type: String,
-      trim: true
-    },
 
-    age: {
-      type: Number,
-      min: 0
-    },
-
-    weight: {
-      type: Number,
-      min: 0
-    }
-  },
-  {
-    timestamps: true
-  }
+// Create new pet (with optional image)
+router.post(
+  "/",
+  authMiddleware,
+  upload.single("image"),
+  createPet
 );
 
-module.exports = mongoose.model("Pet", petSchema);
+
+// Get all pets for logged-in user
+router.get(
+  "/",
+  authMiddleware,
+  getUserPets
+);
+
+
+// Get single pet by ID
+router.get(
+  "/:id",
+  authMiddleware,
+  getPetById
+);
+
+
+// Update pet (supports image replacement)
+router.put(
+  "/:id",
+  authMiddleware,
+  upload.single("image"),
+  updatePet
+);
+
+
+// Delete pet (also deletes image from storage)
+router.delete(
+  "/:id",
+  authMiddleware,
+  deletePet
+);
+
+
+module.exports = router;

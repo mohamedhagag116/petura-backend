@@ -14,8 +14,7 @@ const {
 } = require("../controllers/auth.controller");
 
 const authMiddleware = require("../middlewares/auth.middleware");
-console.log("authMiddleware:", typeof authMiddleware);
-console.log("getProfile:", typeof getProfile);
+
 router.post("/register", registerValidator, validate, register);
 router.post("/login", loginValidator, validate, login);
 router.get("/profile", authMiddleware, getProfile);
